@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { VscChevronRight } from 'react-icons/vsc';
 import '../styles/admin.css';
 import { useToast } from '../hooks/useToast';
+import { addGroup, getGroups, updateGroup, deleteGroup } from '../services/groupService';
+import PermissionPopup from '../components/PermissionPopup';
+import { getGroupPermissions, getModulesWithPermissions, updateGroupPermissions } from '../services/permissionService';
 
 export default function Admin() {
   const [userSearch, setUserSearch] =
@@ -13,11 +16,63 @@ const [groupSearch, setGroupSearch] =
 const [showAddGroupModal, setShowAddGroupModal] = useState(false);
 const [showEditUserModal, setShowEditUserModal] = useState(false);
 const [showEditGroupModal, setShowEditGroupModal] = useState(false);
+const [showPermissionPopup, setShowPermissionPopup] = useState(false);
 const [editingUser, setEditingUser] = useState(null);
 const [editingGroup, setEditingGroup] = useState(null);
 const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 const [itemToDelete, setItemToDelete] = useState(null);
 const [deleteType, setDeleteType] = useState(null);
+const [showPermissionMenu, setShowPermissionMenu] = useState(false);
+const [showGroupMenu, setShowGroupMenu] = useState(false);
+const [allModules, setAllModules] = useState([]);
+const [groupPermissions, setGroupPermissions] = useState([]);
+const [groupPermissionIds, setGroupPermissionIds] = useState([]);
+
+
+
+const loadModulesWithPermissions = async () => {
+
+  try {
+
+    const data =
+      await getModulesWithPermissions();
+
+    setAllModules(data);
+  }
+  catch (error) {
+
+    console.error(
+      'Failed to load modules',
+      error
+    );
+  }
+};
+const loadGroupPermissions = async (groupId) => {
+  try {
+
+    const data = await getGroupPermissions(groupId);
+
+    // For rendering the UI
+    setGroupPermissions(data);
+
+    // Extract only assigned permission ids
+    const assignedIds = data
+      .flatMap(module => module.permissions)
+      .filter(permission => permission.isAssigned)
+      .map(permission => permission.permissionId);
+
+    setGroupPermissionIds(assignedIds);
+
+  }
+  catch (error) {
+    console.error(
+      'Failed to load group permissions',
+      error
+    );
+  }
+};
+
+
 const handleAddUser = async () => {
   try {
 
@@ -37,11 +92,20 @@ const handleAddUser = async () => {
 
 const handleAddGroup = async () => {
   try {
+    if (!newGroup.name.trim()) {
+      toast.error('Group name is required');
+      return;
+    }
 
-    console.log(newGroup);
+    await addGroup({
+      name: newGroup.name,
+      description: newGroup.description
+    });
 
-    // await createGroup(newGroup);
-
+    const groupsResponse = await getGroups();
+    setGroups(groupsResponse.data);
+    setSelectedGroup(groupsResponse.data[0] || null);
+    setNewGroup({ name: '', description: '' });
     setShowAddGroupModal(false);
 
     handleGroupSuccess();
@@ -71,13 +135,22 @@ const handleEditUser = async () => {
 
 const handleEditGroup = async () => {
   try {
+    if (!editingGroup?.name?.trim()) {
+      toast.error('Group name is required');
+      return;
+    }
 
-    console.log(editingGroup);
+    await updateGroup(editingGroup.id, editingGroup);
 
-    // await updateGroup(editingGroup);
+    const groupsResponse = await getGroups();
+    setGroups(groupsResponse.data);
+    setSelectedGroup(
+      groupsResponse.data.find(g => g.id === editingGroup.id) ||
+      groupsResponse.data[0] ||
+      null
+    );
 
     setShowEditGroupModal(false);
-
     toast.success('Group updated successfully!');
 
   } catch (err) {
@@ -105,13 +178,15 @@ const handleDeleteUser = async () => {
 
 const handleDeleteGroup = async () => {
   try {
-
     console.log('Deleting group:', itemToDelete);
 
-    // await deleteGroup(itemToDelete.id);
+    await deleteGroup(itemToDelete.id);
+
+    const groupsResponse = await getGroups();
+    setGroups(groupsResponse.data);
+    setSelectedGroup(groupsResponse.data[0] || null);
 
     setShowDeleteConfirm(false);
-
     toast.success('Group deleted successfully!');
 
   } catch (err) {
@@ -128,7 +203,8 @@ const [newUser, setNewUser] = useState({
 });
 
 const [newGroup, setNewGroup] = useState({
-  name: ''
+  name: '',
+  description: ''
 });
 
   const users = [
@@ -154,26 +230,58 @@ const [newGroup, setNewGroup] = useState({
       permission: 'Full Access (28/28)'
     }
   ];
-    const groups = [
-    {
-        id: 1,
-        name: 'Super Admin',
-        description: 'Full system access'
-    },
-    {
-        id: 2,
-        name: 'Auditors',
-        description: 'Audit management access'
-    },
-    {
-        id: 3,
-        name: 'Engineers',
-        description: 'Field operations access'
-    }
-    ];
-    const [activeTab, setActiveTab] = useState('users');
-    const [selectedUser, setSelectedUser] = useState(users[0]);
-    const [selectedGroup, setSelectedGroup] = useState(groups[0]);
+  const [groups, setGroups] = useState([]);
+  const [activeTab, setActiveTab] = useState('users');
+  const [selectedUser, setSelectedUser] = useState(users[0]);
+  const [selectedGroup, setSelectedGroup] = useState(null);
+
+  useEffect(() => {
+
+    if (!selectedGroup)
+        return;
+
+    loadModulesWithPermissions();
+    loadGroupPermissions(selectedGroup.id);
+
+}, [selectedGroup]); 
+
+  useEffect(() => {
+    const loadGroups = async () => {
+      try {
+        const response = await getGroups();
+        setGroups(response.data);
+        if (response.data.length) {
+          setSelectedGroup(response.data[0]);
+        }
+      } catch (err) {
+        console.error('Failed to load groups', err);
+      }
+    };
+
+    loadGroups();
+  }, []);
+
+  // Load permissions when selected group changes
+  useEffect(() => {
+    const loadGroupPermissions = async () => {
+      if (!selectedGroup) return;
+
+      try {
+        const response = await getGroupPermissions(selectedGroup.id);
+        // Expected format: Array of modules with permissions
+        if (Array.isArray(response.data)) {
+          setGroupPermissions(response.data);
+        }
+      } catch (err) {
+        console.error('Failed to load group permissions', err);
+        // For now, just keep empty state if fetch fails
+        setGroupPermissions([]);
+      }
+    };
+
+    loadGroupPermissions();
+  }, [selectedGroup]);
+
   const filteredUsers = users.filter(x =>
     x.name.toLowerCase().includes(userSearch.toLowerCase()) ||
     x.email.toLowerCase().includes(userSearch.toLowerCase())
@@ -326,9 +434,7 @@ const renderUserPermissions = () => (
 
   </div>
 );
-const [showPermissionMenu, setShowPermissionMenu] = useState(false);
-const [groupPermissions] = useState([]);
-const [showGroupMenu, setShowGroupMenu] = useState(false);
+
 
 const renderGroupPermissions = () => (
 
@@ -353,16 +459,7 @@ const renderGroupPermissions = () => (
                     </span>
 
                     <span className="permission-badge">
-                        {
-                            groupPermissions.reduce(
-                                (total, module) =>
-                                    total +
-                                    module.permissions.length,
-                                0
-                            )
-                        }
-                        {' '}
-                        Permissions
+                        {groupPermissionIds.length} Permissions
                     </span>
 
                 </div>
@@ -371,8 +468,8 @@ const renderGroupPermissions = () => (
 
             <div className="permission-actions">
 
-                <button className="add-user-btn">
-                    Edit Permissions
+                <button className="reset-btn">
+                    Reset All
                 </button>
 
                 <button
@@ -388,17 +485,12 @@ const renderGroupPermissions = () => (
 
                 {showGroupMenu && (
                     <div className="menu-dropdown">
-
-                        <button onClick={() => {
+                      <button onClick={() => {
                           setEditingGroup({...selectedGroup});
                           setShowEditGroupModal(true);
                           setShowGroupMenu(false);
                         }}>
                             Edit Group
-                        </button>
-
-                        <button>
-                            Add Members
                         </button>
 
                         <button className="danger" onClick={() => {
@@ -421,50 +513,95 @@ const renderGroupPermissions = () => (
 
         <div className="permission-grid">
 
-            {groupPermissions.map(module => (
+            {allModules.map(module => (
 
                 <div
-                    key={module.moduleName}
-                    className="permission-section"
-                >
+    key={module.moduleName}
+    className="permission-section"
+>
+    <h3>
+        {module.moduleName}
 
-                    <h3>
-                        {module.moduleName}
-                        {' '}
-                        <span className="module-count">
-                            {module.permissions.length}/
-                            {module.permissions.length}
-                        </span>
-                    </h3>
+        <span className="module-count">
+            {
+                module.permissions.filter(p =>
+                    groupPermissionIds.includes(p.id)
+                ).length
+            }
+            /
+            {module.permissions.length}
+        </span>
+    </h3>
 
-                    {module.permissions.map(permission => (
+    <div className="permission-list">
 
-                        <label
-                            key={permission}
-                            className="permission-item"
-                        >
+        {module.permissions.map(permission => (
 
-                            <input
-                                type="checkbox"
-                                checked
-                                readOnly
-                            />
+            <label
+                key={permission.id}
+                className="permission-item"
+            >
+                <input
+                    type="checkbox"
+                    checked={
+                        groupPermissionIds.includes(
+                            permission.id
+                        )
+                    }
+                    onChange={() =>
+                        handlePermissionToggle(
+                            permission.id
+                        )
+                    }
+                />
 
-                            {permission}
+                {permission.name}
+            </label>
 
-                        </label>
+        ))}
 
-                    ))}
+    </div>
 
-                </div>
+</div>
 
             ))}
 
-        </div>
+        </div>   
 
     </div>
 
 );
+const handlePermissionToggle = async (
+  permissionId
+) => {
+  let updatedPermissionIds;
+
+  if (
+    groupPermissionIds.includes(permissionId)
+  ) {
+    updatedPermissionIds =
+      groupPermissionIds.filter(
+        x => x !== permissionId
+      );
+  }
+  else {
+    updatedPermissionIds = [
+      ...groupPermissionIds,
+      permissionId
+    ];
+  }
+
+  await updateGroupPermissions(
+    selectedGroup.id,
+    updatedPermissionIds
+  );
+  toast.success('Permission updated successfully!')
+
+  await loadGroupPermissions(
+  selectedGroup.id
+  );
+};
+
  const handleUserSuccess = () => {
     toast.success('User created successfully!')
   }
@@ -493,12 +630,20 @@ const renderGroupPermissions = () => (
     + Add User
   </button>
 ) : (
-  <button
-    className="add-user-btn"
-    onClick={() => setShowAddGroupModal(true)}
-  >
-    + Add Group
-  </button>
+  <div className="header-buttons-group">
+    <button
+      className="add-user-btn"
+      onClick={() => setShowAddGroupModal(true)}
+    >
+      + Add Group
+    </button>
+    <button
+      className="add-user-btn"
+      onClick={() => setShowPermissionPopup(true)}
+    >
+      + Add Permission
+    </button>
+  </div>
 )}
     </div>
     <div className="admin-tabs">
@@ -748,9 +893,11 @@ const renderGroupPermissions = () => (
 
           <input
             type="text"
+            required
             value={newGroup.name}
             onChange={(e) =>
               setNewGroup({
+                ...newGroup,
                 name: e.target.value
               })
             }
@@ -763,7 +910,7 @@ const renderGroupPermissions = () => (
             type="text"
             value={newGroup.description}
             onChange={(e) =>
-              setNewGroup({
+              setNewGroup({...newGroup,
                 description: e.target.value
               })
             }
@@ -913,6 +1060,7 @@ const renderGroupPermissions = () => (
 
           <input
             type="text"
+            required
             value={editingGroup?.name || ''}
             onChange={(e) =>
               setEditingGroup({
@@ -1018,6 +1166,15 @@ const renderGroupPermissions = () => (
 
   </div>
 )}
+
+<PermissionPopup 
+  isOpen={showPermissionPopup}
+  onClose={() => setShowPermissionPopup(false)}
+  onAddPermissions={loadModulesWithPermissions}
+  existingPermissions={groupPermissions.flatMap(m => 
+    m.permissions.map(p => ({ module: m.id, permission: p }))
+  )}
+/>
 
   </div>
   
