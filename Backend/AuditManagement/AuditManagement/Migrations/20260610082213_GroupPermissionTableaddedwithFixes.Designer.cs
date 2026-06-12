@@ -3,6 +3,7 @@ using System;
 using AuditManagement.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AuditManagement.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260610082213_GroupPermissionTableaddedwithFixes")]
+    partial class GroupPermissionTableaddedwithFixes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -80,7 +83,7 @@ namespace AuditManagement.Migrations
 
                     b.HasIndex("ModuleId");
 
-                    b.ToTable("Permissions");
+                    b.ToTable("Permission");
                 });
 
             modelBuilder.Entity("AuditManagement.Models.PermissionModule", b =>
@@ -97,7 +100,7 @@ namespace AuditManagement.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PermissionModules");
+                    b.ToTable("PermissionModule");
 
                     b.HasData(
                         new
@@ -125,21 +128,6 @@ namespace AuditManagement.Migrations
                             Id = 5,
                             Name = "Settings"
                         });
-                });
-
-            modelBuilder.Entity("AuditManagement.Models.Sample", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Sample");
                 });
 
             modelBuilder.Entity("AuditManagement.Models.User", b =>
