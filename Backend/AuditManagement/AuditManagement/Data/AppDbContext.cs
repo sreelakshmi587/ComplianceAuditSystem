@@ -22,6 +22,12 @@ namespace AuditManagement.Data
             );
             modelBuilder.Entity<GroupPermission>()
                 .HasKey(x => new { x.GroupId, x.PermissionId });
+            modelBuilder.Entity<UserPermission>()
+                .HasKey(x => new
+                {
+                    x.UserId,
+                    x.PermissionId
+                });
         }
 
         public DbSet<User> Users { get; set; }
@@ -29,5 +35,6 @@ namespace AuditManagement.Data
         public DbSet<Permission> Permissions { get; set; }
         public DbSet<PermissionModule> PermissionModules { get; set; }
         public DbSet<GroupPermission> GroupPermissions { get; set; }
+        public DbSet<UserPermission> UserPermissions { get; set; }
     }
 }

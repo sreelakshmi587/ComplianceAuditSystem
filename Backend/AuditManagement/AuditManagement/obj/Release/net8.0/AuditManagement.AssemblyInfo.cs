@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AuditManagement")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6652d61adacd289ac450f161e61868ef7ac37ca5")]
 [assembly: System.Reflection.AssemblyProductAttribute("AuditManagement")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AuditManagement")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

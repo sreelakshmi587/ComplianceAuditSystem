@@ -144,3 +144,4 @@ D:\ComplianceAuditSystem\Backend\AuditManagement\AuditManagement\bin\Debug\net8.
 D:\ComplianceAuditSystem\Backend\AuditManagement\AuditManagement\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
 D:\ComplianceAuditSystem\Backend\AuditManagement\AuditManagement\bin\Debug\net8.0\runtimes\browser\lib\net8.0\System.Text.Encodings.Web.dll
 D:\ComplianceAuditSystem\Backend\AuditManagement\AuditManagement\bin\Debug\net8.0\BCrypt-Net-Next.dll
+D:\ComplianceAuditSystem\Backend\AuditManagement\AuditManagement\obj\Debug\net8.0\AuditManagement.sourcelink.json

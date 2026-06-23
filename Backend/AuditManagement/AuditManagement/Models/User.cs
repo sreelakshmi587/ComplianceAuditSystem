@@ -10,6 +10,8 @@
 
         public string PasswordHash { get; set; }
 
-        public string Role { get; set; }
+        public Guid GroupId { get; set; }
+
+        public Group Group { get; set; }
     }
 }

@@ -5,6 +5,7 @@ import Auth from './pages/Auth'
 import Dashboard from './pages/Dashboard'
 import SideNav from './components/SideNav'
 import Audit from './pages/Audit'
+import Recommendation from './pages/Recommendation'
 import Admin from './pages/Admin'
 import { ToastProvider } from './context/ToastContext'
 import ToastContainer from './components/ToastContainer'
@@ -38,6 +39,7 @@ function AppContent() {
             element={user ? <Dashboard user={user} onSignOut={handleSignOut} /> : <Navigate to="/" />}
           />
           <Route path="/audit" element={user ? <Audit /> : <Navigate to="/" />} />
+          <Route path="/recommendation" element={user ? <Recommendation /> : <Navigate to="/" />} />
           <Route path="/admin" element={user ? <Admin /> : <Navigate to="/" />} />
         </Routes>
       </main>

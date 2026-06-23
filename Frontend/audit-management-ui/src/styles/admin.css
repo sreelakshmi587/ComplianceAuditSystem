@@ -37,6 +37,16 @@
     gap: 10px;
 }
 
+.header-buttons-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-buttons-group .add-user-btn {
+    margin: 0;
+}
+
 .small-add-btn {
     border: none;
     background: #324154;
@@ -348,31 +358,89 @@
 }
 
 .permission-grid {
+    padding: 0 20px;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 30px;
-    margin-top: 30px;
+    gap: 25px;
+
+    /* scroll entire permissions area if needed */
+    max-height: calc(100vh - 400px);
+    overflow-y: auto;
+}
+
+.permission-section {
+    background: #f5f5f8;
+    border: 1px solid #324154;
+    border-radius: 12px;
+    padding: 8px 14px;
+
+    display: flex;
+    flex-direction: column;
+
+    /* fixed module card height */
+    height: 320px;
+    min-height: 320px;
 }
 
 .permission-section h3 {
     color: #2f3e56;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #324154;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    flex-shrink: 0;
 }
 
-.permission-section label {
+.module-count {
+    font-size: 13px;
+    font-weight: 500;
+    color: #6b7280;
+}
+
+/* permissions container */
+.permission-list {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 6px;
+}
+
+.permission-item {
     display: flex;
     gap: 10px;
-    margin-bottom: 14px;
+    font-size: 16px;
+    margin-bottom: 12px;
+    align-items: center;
+}
+
+.permission-item input[type="checkbox"] {
+    cursor: pointer;
+}
+
+.permission-divider {
+    border-top: 1px solid #e5e7eb;
+}
+
+/* scrollbar */
+.permission-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.permission-list::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 20px;
+}
+
+.permission-list::-webkit-scrollbar-track {
+    background: transparent;
 }
 .permission-divider {
     border-top: 1px solid #e5e7eb;
 }
-.permission-grid {
-    padding: 24px;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 32px;
-}
+
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -490,4 +558,58 @@
 
 .danger-btn:hover {
     background: #b91c1c;
+}
+.module-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.module-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+.module-checkbox input {
+    cursor: pointer;
+}
+
+.module-count {
+    color: #6b7280;
+    font-size: 13px;
+}
+.sort-container {
+    position: relative;
+}
+
+.sort-dropdown {
+    position: absolute;
+    top: 35px;
+    right: 0;
+    min-width: 180px;
+
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+
+    z-index: 1000;
+}
+
+.sort-dropdown button {
+    width: 100%;
+    padding: 10px 14px;
+
+    border: none;
+    background: white;
+
+    text-align: left;
+    cursor: pointer;
+}
+
+.sort-dropdown button:hover {
+    background: #f3f4f6;
 }

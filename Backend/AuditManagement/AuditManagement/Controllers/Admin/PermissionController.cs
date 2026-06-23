@@ -171,19 +171,8 @@ namespace AuditManagement.Controllers.Admin
             return Ok(modules);
         }
 
-        //[HttpGet("groups/{groupId}/permissions")]
-        //public async Task<IActionResult> GetGroupPermissions(
-        //    Guid groupId)
-        //{
-        //    var permissions = await _context.GroupPermissions
-        //        .Where(x => x.GroupId == groupId)
-        //        .Select(x => x.PermissionId)
-        //        .ToListAsync();
 
-        //    return Ok(permissions);
-        //} 
-
-        [HttpGet("{groupId}/permissions")]
+        [HttpGet("group/{groupId}/permissions")]
         public async Task<IActionResult> GetGroupPermissions(Guid groupId)
         {
             var assignedPermissionIds = await _context.GroupPermissions
@@ -217,7 +206,7 @@ namespace AuditManagement.Controllers.Admin
             return Ok(result);
         }
 
-        [HttpPut("{groupId}/permissions")]
+        [HttpPut("group/{groupId}/permissions")]
         public async Task<IActionResult> UpdateGroupPermissions(
             Guid groupId,
             UpdateGroupPermissionsRequest request)
@@ -245,5 +234,82 @@ namespace AuditManagement.Controllers.Admin
 
             return Ok("Permissions updated successfully");
         }
+
+        [HttpGet("user/{userId}/permissions")]
+        public async Task<IActionResult> GetUserPermissions(
+            Guid userId)
+        {
+            var assignedPermissionIds =
+                await _context.UserPermissions
+                    .Where(x => x.UserId == userId)
+                    .Select(x => x.PermissionId)
+                    .ToListAsync();
+
+            var modules =
+                await _context.PermissionModules
+                    .Include(x => x.Permissions)
+                    .ToListAsync();
+
+            var result =
+                modules.Select(module =>
+                    new ModulePermissionResponseDto
+                    {
+                        ModuleId = module.Id,
+                        ModuleName = module.Name,
+
+                        Permissions =
+                            module.Permissions
+                                .Select(permission =>
+                                    new PermissionResponseDto
+                                    {
+                                        PermissionId =
+                                            permission.Id,
+
+                                        Name =
+                                            permission.Name,
+
+                                        IsAssigned =
+                                            assignedPermissionIds
+                                                .Contains(
+                                                    permission.Id)
+                                    })
+                                .ToList()
+                    });
+
+            return Ok(result);
+        }
+
+        [HttpPut("user/{userId}/permissions")]
+        public async Task<IActionResult> UpdateUserPermissions(
+            Guid userId,
+             [FromBody] UpdateUserPermissionsRequest request)
+        {
+            var existingPermissions =
+                await _context.UserPermissions
+                    .Where(x => x.UserId == userId)
+                    .ToListAsync();
+
+            _context.UserPermissions.RemoveRange(
+                existingPermissions);
+
+            var newPermissions =
+                request.PermissionIds.Select(
+                    permissionId =>
+                        new UserPermission
+                        {
+                            UserId = userId,
+                            PermissionId = permissionId
+                        });
+
+            await _context.UserPermissions
+                .AddRangeAsync(newPermissions);
+
+            await _context.SaveChangesAsync();
+
+            return Ok(
+                "User permissions updated successfully");
+        }
+
+
     }
 }

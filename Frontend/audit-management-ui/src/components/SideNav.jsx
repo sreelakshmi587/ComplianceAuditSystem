@@ -9,6 +9,7 @@ export default function SideNav() {
       <nav className="sidenav-nav">
         <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'sidenav-item active' : 'sidenav-item'}>Dashboard</NavLink>
         <NavLink to="/audit" className={({ isActive }) => isActive ? 'sidenav-item active' : 'sidenav-item'}>Audits</NavLink>
+        <NavLink to="/recommendation" className={({ isActive }) => isActive ? 'sidenav-item active' : 'sidenav-item'}>Recommendations</NavLink>
         <NavLink to="/admin" className={({ isActive }) => isActive ? 'sidenav-item active' : 'sidenav-item'}>Admin</NavLink>
         <NavLink to="/settings" className={({ isActive }) => isActive ? 'sidenav-item active' : 'sidenav-item'}>Settings</NavLink>
       </nav>
