@@ -1,0 +1,24 @@
+# React
+Frontend/node_modules
+Frontend/dist
+Frontend/build
+
+# VS
+.vs
+*.user
+*.suo
+
+# .NET
+Backend/bin
+Backend/obj
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.*
+
+# OS
+Thumbs.db
+.DS_Store
