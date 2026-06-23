@@ -150,7 +150,7 @@ useEffect(() => {
 };
 
   const handleClose = () => {
-    //setSelectedPermissions([]);
+    setNewPermissionName('');
     setBulkPermissions('');
     setAddMode('single');
     onClose();

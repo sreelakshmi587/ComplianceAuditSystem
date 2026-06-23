@@ -44,7 +44,7 @@ export const getModulesWithPermissions = async () => {
 };
 export const getGroupPermissions = async (groupId) => {
     const response = await api.get(
-      `/Permissions/${groupId}/permissions`
+      `/Permissions/group/${groupId}/permissions`
     );
 
     return response.data;
@@ -56,9 +56,34 @@ export const updateGroupPermissions = async (
 ) => {
 
   const response = await api.put(
-    `/Permissions/${groupId}/permissions`,
+    `/Permissions/group/${groupId}/permissions`,
     {
       permissionIds: permissionIds
+    }
+  );
+
+  return response.data;
+};
+
+export const getUserPermissions = async (
+  userId
+) => {
+
+  const response = await api.get(
+    `/Permissions/user/${userId}/permissions`
+  );
+
+  return response.data;
+};
+export const updateUserPermissions = async (
+  userId,
+  permissionIds
+) => {
+
+  const response = await api.put(
+    `/Permissions/user/${userId}/permissions`,
+    {
+      permissionIds
     }
   );
 

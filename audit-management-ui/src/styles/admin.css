@@ -361,10 +361,10 @@
     padding: 0 20px;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 32px;
+    gap: 25px;
 
     /* scroll entire permissions area if needed */
-    max-height: calc(100vh - 320px);
+    max-height: calc(100vh - 400px);
     overflow-y: auto;
 }
 
@@ -558,4 +558,58 @@
 
 .danger-btn:hover {
     background: #b91c1c;
+}
+.module-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.module-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+.module-checkbox input {
+    cursor: pointer;
+}
+
+.module-count {
+    color: #6b7280;
+    font-size: 13px;
+}
+.sort-container {
+    position: relative;
+}
+
+.sort-dropdown {
+    position: absolute;
+    top: 35px;
+    right: 0;
+    min-width: 180px;
+
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+
+    z-index: 1000;
+}
+
+.sort-dropdown button {
+    width: 100%;
+    padding: 10px 14px;
+
+    border: none;
+    background: white;
+
+    text-align: left;
+    cursor: pointer;
+}
+
+.sort-dropdown button:hover {
+    background: #f3f4f6;
 }
